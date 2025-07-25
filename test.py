@@ -73,6 +73,8 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         if type_code == 2:
             value_counts = df[col].value_counts(dropna=False).sort_index()
             total = len(df)
+            valid_count = df[col].notna().sum()
+            missing_count = df[col].isna().sum()
             defs = category_definitions.get(col, {})
             lines = [
                 f"{int(k) if isinstance(k, float) and k.is_integer() else k}: {defs.get(k, '')} → {v} ({v/total:.2%})"
@@ -80,12 +82,16 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ]
             summary_text = "\n".join(lines)
 
-            table = doc.add_table(rows=2, cols=2)
+            table = doc.add_table(rows=3, cols=2)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Variable Name"
             table.cell(0, 1).text = f"{col} ({var_name})"
             table.cell(1, 0).text = "Categories Summary"
             table.cell(1, 1).text = summary_text
+            table.cell(2, 0).text = "Valid count"
+            table.cell(2, 1).text = str(valid_count)
+            table.cell(3, 0).text = "NoV count"
+            table.cell(3, 1).text = str(missing_count)
 
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
