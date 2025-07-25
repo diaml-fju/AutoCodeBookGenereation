@@ -72,6 +72,10 @@ if data_file:
             if excluded_vars:
                 st.warning(f"⚠️ 有 {len(excluded_vars)} 個變數未在主資料中找到，已被略過：")
                 st.code(", ".join(excluded_vars), language="text")
+            excluded_code_vars = sorted(set(common_vars) - set(code_vars))
+            if excluded_vars:
+                st.warning(f"⚠️ 有 {len(excluded_code_vars)} 個變數未在 code 中找到，已被略過：")
+                st.code(", ".join(excluded_code_vars), language="text")
 
             st.info(f"✅ 同時存在於主資料與 Codebook 的變數數量：{len(common_vars)}")
 
