@@ -60,39 +60,39 @@ if data_file:
         code_df["type"] = code_df["type"].astype(str).str.strip().str.lower()
         code_df = code_df[~code_df["type"].isin(["none", "nan", ""])]
 
-        column_types = {}
+        variable_types = {}
         variable_names = {}
-        column_roles = {}
+        variable_roles = {}
         x_counter = y_counter = 1
 
         for _, row in code_df.iterrows():
-            col = row["column"]
+            col = row["variable"]
             t = row["type"]
             target = str(row.get("target", "")).strip().lower()
 
             if target:
-                column_roles[col] = f"Y{y_counter}"
+                variable_roles[col] = f"Y{y_counter}"
                 variable_names[col] = f"Y{y_counter}"
                 y_counter += 1
                 continue
 
             if t == "numerical":
-                column_roles[col] = f"X{x_counter}"
-                column_types[col] = 1
+                variable_roles[col] = f"X{x_counter}"
+                variable_types[col] = 1
                 x_counter += 1
             elif t == "categorical":
-                column_roles[col] = f"X{x_counter}"
-                column_types[col] = 2
+                variable_roles[col] = f"X{x_counter}"
+                variable_types[col] = 2
                 x_counter += 1
             else:
                 st.warning(f"⚠️ Unknown Type '{t}' for column '{col}' — skipped.")
                 continue
 
-            variable_names[col] = column_roles.get(col, col)
+            variable_names[col] = variable_roles.get(col, col)
 
         # 🔸 顯示統計摘要與按鈕
         st.subheader("📊 變數類型統計")
-        type_count = pd.Series(column_types).value_counts().sort_index()
+        type_count = pd.Series(variable_types).value_counts().sort_index()
         type_label_map = {1: "數值型 (Numerical)", 2: "類別型 (Categorical)"}
         type_summary = pd.DataFrame({
             "變數類型": [type_label_map.get(t, f"其他 ({t})") for t in type_count.index],
@@ -109,7 +109,7 @@ if data_file:
                     output_path = "codebook.docx"
                     # 🔁 替換成你的產生 codebook 函數
                     output_path = generate_codebook(
-                        df, column_types, variable_names, {},
+                        df, variable_types, variable_names, {},
                         code_df=code_df, output_path=output_path
                     )
 
