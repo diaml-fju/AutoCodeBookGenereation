@@ -68,7 +68,10 @@ if data_file:
         for _, row in code_df.iterrows():
             col = row["variable"]
             t = row["type"]
-            target = str(row.get("target", "")).strip().lower()
+            if "target" in row:
+                target = str(row["target"]).strip().lower()
+            else:
+                target = ""
 
             if target:
                 variable_roles[col] = f"Y{y_counter}"
