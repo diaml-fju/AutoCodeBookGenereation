@@ -45,6 +45,7 @@ if data_file:
     df = pd.read_csv(data_file)
     df = df.dropna(how="all")
     df.columns = df.columns.str.strip()  # 去除主資料欄位空白
+    df = df.loc[:, ~df.columns.str.contains("^Unnamed")] #去除主資料開頭為 Unnamed
     st.success("✅ 主資料上傳成功！")
     
     st.dataframe(df.head())
@@ -61,7 +62,7 @@ if data_file:
         # 去除 Variable 欄為空白或僅含空格的列
         
         code_df.columns = code_df.columns.str.strip().str.lower()
-        code_df = code_df[code_df["variable"].astype(str).str.strip() != ""].copy()
+        
         if "variable" not in code_df.columns or "type" not in code_df.columns:
             st.error("❌ code.csv 檔案中需包含 'Variable' 與 'Type' 欄位")
         else:
