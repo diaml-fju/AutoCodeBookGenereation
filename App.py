@@ -82,7 +82,7 @@ with tab1:
         x_counter = y_counter = 1
 
         for _, row in code_df.iterrows():
-            col = row["Column"]
+            col = row["Variable"]
             t = str(row["Type"]).strip().lower()
             target = str(row.get("Target", "")).strip().lower()
 
