@@ -28,6 +28,7 @@ with tab1:
     - `0`：略過
     - `1`：數值型
     - `2`：類別型
+    
     """)
 
     import streamlit as st
@@ -85,17 +86,19 @@ if data_file:
                 if col not in df.columns:
                     continue  # 雙保險防呆
 
-                if target:
+                if target in ["y", "yes", "target", "1"]:
                     column_roles[col] = f"Y{y_counter}"
                     variable_names[col] = f"Y{y_counter}"
                     y_counter += 1
                     continue
+                if t in ["", "0", "none"]:
+                    continue  # 自動略過
 
-                if t == "numerical":
+                if t in ["1", "numerical","連續"]:
                     column_roles[col] = f"X{x_counter}"
                     column_types[col] = 1
                     x_counter += 1
-                elif t == "categorical":
+                elif t in ["2", "categorical","類別"]:
                     column_roles[col] = f"X{x_counter}"
                     column_types[col] = 2
                     x_counter += 1
