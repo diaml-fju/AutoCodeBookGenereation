@@ -9,18 +9,18 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
     if output_path is None:
         output_path = "codebook.docx"
 
-    # 🔹 預處理欄位名稱
     if code_df is not None:
         code_df.columns = code_df.columns.str.strip().str.lower()
 
     doc = Document()
     doc.add_heading("Codebook Summary Report", level=1)
 
-    # 🔹 遺失值統計區塊
-    doc.add_heading("Missing Value Summary", level=2)
-    na_counts = df.isnull().sum()
-    na_percent = df.isnull().mean() * 100
+    # ✅ 只統計實際存在欄位的缺失值
+    valid_cols = [col for col in column_types.keys() if col in df.columns]
+    na_counts = df[valid_cols].isnull().sum()
+    na_percent = df[valid_cols].isnull().mean() * 100
 
+    doc.add_heading("Missing Value Summary", level=2)
     na_df = pd.DataFrame({
         "column": na_counts.index,
         "missing_count": na_counts.values,
@@ -54,7 +54,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         table.cell(i + 1, 0).text = label
         table.cell(i + 1, 1).text = str(count)
 
-    # 🔹 欄位細節區塊
+    # 🔹 欄位細節處理
     columns = code_df["variable"] if code_df is not None and "variable" in code_df.columns else df.columns
 
     for col in columns:
@@ -69,7 +69,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         var_name = variable_names.get(col, col)
         doc.add_heading(f"Variable: {col} ({var_name})", level=2)
 
-        # 🟦 類別型變數
+        # 🟦 類別型
         if type_code == 2:
             value_counts = df[col].value_counts(dropna=False).sort_index()
             total = len(df)
@@ -98,7 +98,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             try: os.unlink(tmp.name)
             except PermissionError: pass
 
-        # 🟩 數值型變數
+        # 🟩 數值型
         elif type_code == 1:
             try:
                 df[col] = pd.to_numeric(df[col], errors="coerce")
