@@ -111,9 +111,9 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table = doc.add_table(rows=4, cols=4)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Index"
-            table.cell(0, 1).text = col
+            table.cell(0, 1).text = var_name
             table.cell(0, 2).text = "Variable Name"
-            table.cell(0, 3).text = var_name
+            table.cell(0, 3).text = col
 
             table.cell(1, 0).text = "Mean"
             table.cell(1, 1).text = f"{desc['mean']:.3f}"
@@ -127,8 +127,13 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
 
             table.cell(3, 0).text = "Q1 (25%)"
             table.cell(3, 1).text = f"{desc['25%']:.3f}"
-            table.cell(3, 2).text = "Q3 (75%)"
-            table.cell(3, 3).text = f"{desc['75%']:.3f}"
+            table.cell(3, 2).text = "Q2 (50%)"
+            table.cell(3, 3).text = f"{desc['50%']:.3f}"
+
+            table.cell(4, 0).text = "Q3 (75%)"
+            table.cell(4, 1).text = f"{desc['75%']:.3f}"
+            table.cell(4, 2).text = "Range)"
+            table.cell(4, 3).text = f"{desc['max'] - desc['min']:.3f}"
 
             fig, ax = plt.subplots()
             df[col].plot(kind="hist", bins=10, color="skyblue", edgecolor="black", ax=ax)
@@ -142,7 +147,23 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             except PermissionError: pass
 
             fig2, ax2 = plt.subplots()
-            df.boxplot(column=col, ax=ax2)
+            box = df.boxplot(column=col, ax=ax2, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
+
+            # ➤ 計算五數摘要
+            q1 = desc['25%']
+            q2 = desc['50%']
+            q3 = desc['75%']
+            minimum = desc['min']
+            maximum = desc['max']
+
+            # ➤ 加上標註
+            x = 1  # boxplot 當作只有一組資料，x軸位置為1
+            ax2.text(x + 0.05, minimum, f"Min: {minimum:.2f}", va='center', fontsize=8)
+            ax2.text(x + 0.05, q1, f"Q1: {q1:.2f}", va='center', fontsize=8)
+            ax2.text(x + 0.05, q2, f"Median: {q2:.2f}", va='center', fontsize=8)
+            ax2.text(x + 0.05, q3, f"Q3: {q3:.2f}", va='center', fontsize=8)
+            ax2.text(x + 0.05, maximum, f"Max: {maximum:.2f}", va='center', fontsize=8)
+
             ax2.set_title(f"Boxplot of {col}")
             tmp2 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
