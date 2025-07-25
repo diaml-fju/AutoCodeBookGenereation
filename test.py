@@ -9,12 +9,12 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
     if output_path is None:
         output_path = "codebook.docx"
 
+    # 🔹 預處理欄位名稱
+    if code_df is not None:
+        code_df.columns = code_df.columns.str.strip().str.lower()
+
     doc = Document()
     doc.add_heading("Codebook Summary Report", level=1)
-
-    # 🔹 準備欄位列表
-    #code_df = code_df[~code_df["type"].astype(str).str.lower().eq("0")]
-    code_df.columns = code_df.columns.str.strip().str.lower()
 
     # 🔹 遺失值統計區塊
     doc.add_heading("Missing Value Summary", level=2)
@@ -22,10 +22,10 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
     na_percent = df.isnull().mean() * 100
 
     na_df = pd.DataFrame({
-        "Column": na_counts.index,
-        "Missing Count": na_counts.values,
-        "Missing Rate (%)": na_percent.round(2).values
-    }).query("`Missing Count` > 0").reset_index(drop=True)
+        "column": na_counts.index,
+        "missing_count": na_counts.values,
+        "missing_rate (%)": na_percent.round(2).values
+    }).query("`missing_count` > 0").reset_index(drop=True)
 
     if not na_df.empty:
         table = doc.add_table(rows=1 + len(na_df), cols=3)
@@ -34,16 +34,16 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         table.cell(0, 1).text = "Missing Count"
         table.cell(0, 2).text = "Missing Rate (%)"
         for i, row in na_df.iterrows():
-            table.cell(i + 1, 0).text = str(row["Column"])
-            table.cell(i + 1, 1).text = str(row["Missing Count"])
-            table.cell(i + 1, 2).text = str(row["Missing Rate (%)"])
+            table.cell(i + 1, 0).text = str(row["column"])
+            table.cell(i + 1, 1).text = str(row["missing_count"])
+            table.cell(i + 1, 2).text = str(row["missing_rate (%)"])
     else:
         doc.add_paragraph("No missing values in any columns.")
 
     # 🔹 變數類型統計區塊
     doc.add_heading("Variable Type Summary", level=2)
     type_count = pd.Series(column_types).value_counts().sort_index()
-    type_label_map = {1: "數值型 (Type 1)", 2: "類別型 (Type 2)"}
+    type_label_map = {1: "數值型 (Numerical)", 2: "類別型 (Categorical)"}
 
     table = doc.add_table(rows=1 + len(type_count), cols=2)
     table.style = "Table Grid"
@@ -54,13 +54,14 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         table.cell(i + 1, 0).text = label
         table.cell(i + 1, 1).text = str(count)
 
-    # 🔹 開始處理欄位細節
-    df = df.dropna(how='all')  # ✅ 去除缺失的 row
-    columns = code_df["Column"] if code_df is not None else df.columns
+    # 🔹 欄位細節區塊
+    columns = code_df["variable"] if code_df is not None and "variable" in code_df.columns else df.columns
 
     for col in columns:
-        if col not in column_types:
+        col = str(col).strip()
+        if col not in column_types or col not in df.columns:
             continue
+
         type_code = column_types[col]
         if type_code == 0:
             continue
@@ -86,7 +87,6 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(1, 0).text = "Categories Summary"
             table.cell(1, 1).text = summary_text
 
-            # 圖表
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}")
@@ -130,7 +130,6 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(3, 2).text = "Q3 (75%)"
             table.cell(3, 3).text = f"{desc['75%']:.3f}"
 
-            # Histogram
             fig, ax = plt.subplots()
             df[col].plot(kind="hist", bins=10, color="skyblue", edgecolor="black", ax=ax)
             ax.set_title(f"Histogram of {col}")
@@ -142,7 +141,6 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             try: os.unlink(tmp1.name)
             except PermissionError: pass
 
-            # Boxplot
             fig2, ax2 = plt.subplots()
             df.boxplot(column=col, ax=ax2)
             ax2.set_title(f"Boxplot of {col}")
