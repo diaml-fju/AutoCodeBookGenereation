@@ -104,8 +104,15 @@ if data_file:
                 if target in ["y", "yes", "target", "1"]:
                     column_roles[col] = f"Y{y_counter}"
                     variable_names[col] = f"Y{y_counter}"
+                    # 根據 type 欄位設定 column_types
+                    if t in ["2", "categorical", "類別"]:
+                        column_types[col] = 2
+                    else:
+                        column_types[col] = 1  # 預設為數值型
+                    
                     y_counter += 1
                     continue
+                    
                 if t in ["", "0", "none"]:
                     continue  # 自動略過
 
