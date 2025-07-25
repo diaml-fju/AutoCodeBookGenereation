@@ -75,7 +75,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             total = len(df)
             defs = category_definitions.get(col, {})
             lines = [
-                f"{k}: {defs.get(k, '')} → {v} ({v/total:.2%})"
+                f"{int(k) if isinstance(k, float) and k.is_integer() else k}: {defs.get(k, '')} → {v} ({v/total:.2%})"
                 for k, v in value_counts.items()
             ]
             summary_text = "\n".join(lines)
