@@ -91,10 +91,17 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}")
 
-            # ➤ 在每根長條上方標出數值（轉為 int 顯示）
-            for i, (cat, count) in enumerate(value_counts.items()):
-                label = f"{int(cat)}" if isinstance(cat, float) and cat.is_integer() else str(cat)
-                ax.text(i, count + 0.5, label, ha='center', va='bottom', fontsize=8)
+            # ➤ 設定 x 軸標籤為字串（避免顯示 1.0, 2.0）
+            ax.set_xticks(range(len(value_counts)))
+            ax.set_xticklabels([
+                str(int(cat)) if isinstance(cat, float) and cat.is_integer() else str(cat)
+                for cat in value_counts.index
+            ])
+
+            # ➤ 在每根長條上標出數值（轉為 int 顯示）
+            for i, (_, count) in enumerate(value_counts.items()):
+                ax.text(i, count + 0.5, str(int(count)), ha='center', va='bottom', fontsize=8)
+
 
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
