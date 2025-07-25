@@ -82,7 +82,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ]
             summary_text = "\n".join(lines)
 
-            table = doc.add_table(rows=3, cols=2)
+            table = doc.add_table(rows=4, cols=2)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Variable Name"
             table.cell(0, 1).text = f"{col} ({var_name})"
