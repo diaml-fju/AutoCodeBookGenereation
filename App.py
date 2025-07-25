@@ -72,8 +72,10 @@ with tab1:
     
 
     if df is not None and code_df is not None:
-        code_df = code_df[~code_df["Type"].astype(str).str.lower().eq("0")]
-
+        # 去除 Type 欄為 None、空白或 NaN 的欄位
+        code_df["Type"] = code_df["Type"].astype(str).str.strip().str.lower()
+        code_df = code_df[~code_df["Type"].isin(["none", "nan", ""])]
+        
         column_types = {}
         variable_names = {}
         column_roles = {}
@@ -81,32 +83,42 @@ with tab1:
 
         for _, row in code_df.iterrows():
             col = row["Column"]
-            t = str(row["Type"]).lower()
-            if t == "y1":
-                column_roles[col] = "Y"
-                column_types[col] = 1
-            elif t == "y2":
-                column_roles[col] = "Y"
-                column_types[col] = 2
-            elif t in ["1", "2"]:
+            t = str(row["Type"]).strip().lower()
+            target = str(row.get("Target", "")).strip().lower()
+
+            if target:  # 若有填 Target，視為 Y 變數
+                column_roles[col] = f"Y{y_counter}"
+                variable_names[col] = f"Y{y_counter}"
+                y_counter += 1
+                # 不需要加入 column_types（通常 Y 不會統計型別）
+                continue
+
+            # 根據 Type 指定類型
+            if t == "numerical":
                 column_roles[col] = f"X{x_counter}"
-                column_types[col] = int(t)
+                column_types[col] = 1
+                x_counter += 1
+            elif t == "categorical":
+                column_roles[col] = f"X{x_counter}"
+                column_types[col] = 2
                 x_counter += 1
             else:
                 st.warning(f"⚠️ Unknown Type '{t}' for column '{col}' — skipped.")
                 continue
+
             variable_names[col] = column_roles.get(col, col)
 
         # 🔹 變數類型統計
         st.subheader("📊 變數類型統計")
         type_count = pd.Series(column_types).value_counts().sort_index()
-        type_label_map = {1: "數值型 (Type 1)", 2: "類別型 (Type 2)"}
+        type_label_map = {1: "數值型 (Numerical)", 2: "類別型 (Categorical)"}
         type_summary = pd.DataFrame({
             "變數類型": [type_label_map.get(t, f"其他 ({t})") for t in type_count.index],
             "欄位數": type_count.values
         })
         st.dataframe(type_summary)
         st.markdown("---")
+
         st.subheader("📤 Codebook 報告產出")
         category_definitions = {}  # 可加入對應標籤
         if st.button("🚀 產出 Codebook 報告"):
@@ -124,6 +136,7 @@ with tab1:
                     st.success("✅ 報告產出完成！")
                 except Exception as e:
                     st.error(f"❌ 報告產出失敗：{e}")
+
 
 
 # ---------- Tab 2 ----------
