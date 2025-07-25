@@ -90,6 +90,12 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}")
+
+            # ➤ 在每根長條上方標出數值（轉為 int 顯示）
+            for i, (cat, count) in enumerate(value_counts.items()):
+                label = f"{int(cat)}" if isinstance(cat, float) and cat.is_integer() else str(cat)
+                ax.text(i, count + 0.5, label, ha='center', va='bottom', fontsize=8)
+
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
             plt.savefig(tmp.name)
