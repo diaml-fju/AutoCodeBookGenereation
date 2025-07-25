@@ -13,8 +13,9 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
     doc.add_heading("Codebook Summary Report", level=1)
 
     # 🔹 準備欄位列表
-    code_df = code_df[~code_df["Type"].astype(str).str.lower().eq("0")]
-    
+    #code_df = code_df[~code_df["type"].astype(str).str.lower().eq("0")]
+    code_df.columns = code_df.columns.str.strip().str.lower()
+
     # 🔹 遺失值統計區塊
     doc.add_heading("Missing Value Summary", level=2)
     na_counts = df.isnull().sum()
