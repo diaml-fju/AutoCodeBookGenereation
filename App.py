@@ -67,14 +67,14 @@ if data_file:
             code_vars = code_df["variable"].astype(str).str.strip().tolist()
             df_vars = df.columns.tolist()
             common_vars = list(set(code_vars) & set(df_vars))
-            
+
             # ➤ 顯示落選的變數（只在 code.csv 裡但主資料中找不到）
-            excluded_vars = sorted(set(code_vars) - set(common_vars))
+            excluded_vars = sorted(set(code_vars) - set(df_vars))
             if excluded_vars:
                 st.warning(f"⚠️ 有 {len(excluded_vars)} 個變數未在主資料中找到，已被略過：")
                 st.code(", ".join(excluded_vars), language="text")
 
-            excluded_code_vars = sorted(set(common_vars) - set(code_vars))
+            excluded_code_vars = sorted(set(df_vars) - set(code_vars))
             if excluded_code_vars:
                 st.warning(f"⚠️ 有 {len(excluded_code_vars)} 個變數未在 code 中找到，已被略過：")
                 st.code(", ".join(excluded_code_vars), language="text")
