@@ -55,7 +55,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         table.cell(i + 1, 1).text = str(count)
 
     # 🔹 開始處理欄位細節
-    df = df.dropna(how='All')  # ✅ 去除缺失的 row
+    df = df.dropna(how='all')  # ✅ 去除缺失的 row
     columns = code_df["Column"] if code_df is not None else df.columns
 
     for col in columns:
