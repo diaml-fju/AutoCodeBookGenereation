@@ -33,96 +33,108 @@ with tab1:
     import streamlit as st
 import pandas as pd
 
-# 🔹 上傳主資料
+# 📁 第一步：上傳主資料
 st.header("📁 資料上傳")
 data_file = st.file_uploader("請上傳主資料 CSV", type=["csv"], key="data")
 
 df = None
+code_df = None
+
 if data_file:
     df = pd.read_csv(data_file)
+    df.columns = df.columns.str.strip()  # 去除主資料欄位空白
     st.success("✅ 主資料上傳成功！")
     st.dataframe(df.head())
 
     st.markdown("---")
     st.info("📌 若需產出 Codebook，請繼續上傳 code.csv")
 
-    # 🔹 上傳第二個檔案：code.csv
-    code_file = st.file_uploader("📄 請上傳 code.csv（可選）", type=["csv"], key="code")
+    # 📄 第二步：上傳 code.csv
+    code_file = st.file_uploader("📄 請上傳 Codebook 設定檔（code.csv）", type=["csv"], key="code")
 
     if code_file:
         code_df = pd.read_csv(code_file)
-        st.success("✅ code.csv 上傳成功！")
-
-        # ➤ 清理欄位名稱
         code_df.columns = code_df.columns.str.strip().str.lower()
-        st.write("🧪 code_df 欄位名稱：", list(code_df.columns))
-        # ➤ 清除 type 欄空值
-        code_df["type"] = code_df["type"].astype(str).str.strip().str.lower()
-        code_df = code_df[~code_df["type"].isin(["none", "nan", ""])]
 
-        variable_types = {}
-        variable_names = {}
-        variable_roles = {}
-        x_counter = y_counter = 1
+        if "variable" not in code_df.columns or "type" not in code_df.columns:
+            st.error("❌ code.csv 檔案中需包含 'Variable' 與 'Type' 欄位")
+        else:
+            # ➤ 抓取交集變數
+            code_vars = code_df["variable"].astype(str).str.strip().tolist()
+            df_vars = df.columns.tolist()
+            common_vars = list(set(code_vars) & set(df_vars))
 
-        for _, row in code_df.iterrows():
-            col = row["variable"]
-            t = row["type"]
-            if "target" in row:
-                target = str(row["target"]).strip().lower()
-            else:
-                target = ""
+            st.info(f"✅ 同時存在於主資料與 Codebook 的變數數量：{len(common_vars)}")
 
-            if target:
-                variable_roles[col] = f"Y{y_counter}"
-                variable_names[col] = f"Y{y_counter}"
-                y_counter += 1
-                continue
+            # ➤ 過濾 code_df 只保留交集變數
+            code_df = code_df[code_df["variable"].astype(str).str.strip().isin(common_vars)].reset_index(drop=True)
 
-            if t == "numerical":
-                variable_roles[col] = f"X{x_counter}"
-                variable_types[col] = 1
-                x_counter += 1
-            elif t == "categorical":
-                variable_roles[col] = f"X{x_counter}"
-                variable_types[col] = 2
-                x_counter += 1
-            else:
-                st.warning(f"⚠️ Unknown Type '{t}' for column '{col}' — skipped.")
-                continue
+            # 🧩 處理變數屬性
+            column_types = {}
+            variable_names = {}
+            column_roles = {}
+            x_counter = y_counter = 1
 
-            variable_names[col] = variable_roles.get(col, col)
+            for _, row in code_df.iterrows():
+                col = str(row["variable"]).strip()
+                t = str(row.get("type", "")).strip().lower()
+                target = str(row.get("target", "") if "target" in row else "").strip().lower()
 
-        # 🔸 顯示統計摘要與按鈕
-        st.subheader("📊 變數類型統計")
-        type_count = pd.Series(variable_types).value_counts().sort_index()
-        type_label_map = {1: "數值型 (Numerical)", 2: "類別型 (Categorical)"}
-        type_summary = pd.DataFrame({
-            "變數類型": [type_label_map.get(t, f"其他 ({t})") for t in type_count.index],
-            "欄位數": type_count.values
-        })
-        st.dataframe(type_summary)
+                if col not in df.columns:
+                    continue  # 雙保險防呆
 
-        st.markdown("---")
-        st.subheader("📤 Codebook 報告產出")
+                if target:
+                    column_roles[col] = f"Y{y_counter}"
+                    variable_names[col] = f"Y{y_counter}"
+                    y_counter += 1
+                    continue
 
-        if st.button("🚀 產出 Codebook 報告"):
-            with st.spinner("📄 報告產出中，請稍候..."):
-                try:
-                    output_path = "codebook.docx"
-                    # 🔁 替換成你的產生 codebook 函數
-                    output_path = generate_codebook(
-                        df, variable_types, variable_names, {},
-                        code_df=code_df, output_path=output_path
-                    )
+                if t == "numerical":
+                    column_roles[col] = f"X{x_counter}"
+                    column_types[col] = 1
+                    x_counter += 1
+                elif t == "categorical":
+                    column_roles[col] = f"X{x_counter}"
+                    column_types[col] = 2
+                    x_counter += 1
+                else:
+                    st.warning(f"⚠️ Unknown Type '{t}' for column '{col}' — skipped.")
+                    continue
 
-                    with open(output_path, "rb") as f:
-                        b64 = base64.b64encode(f.read()).decode()
-                        href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{output_path}">📥 點我下載 Codebook 報告</a>'
-                        st.markdown(href, unsafe_allow_html=True)
-                    st.success("✅ 報告產出完成！")
-                except Exception as e:
-                    st.error(f"❌ 報告產出失敗：{e}")
+                variable_names[col] = column_roles.get(col, col)
+
+            # 📊 顯示變數類型統計
+            st.subheader("📊 變數類型統計")
+            type_count = pd.Series(column_types).value_counts().sort_index()
+            type_label_map = {1: "數值型 (Numerical)", 2: "類別型 (Categorical)"}
+            type_summary = pd.DataFrame({
+                "變數類型": [type_label_map.get(t, f"其他 ({t})") for t in type_count.index],
+                "欄位數": type_count.values
+            })
+            st.dataframe(type_summary)
+
+            # 📤 產出報告按鈕
+            st.markdown("---")
+            st.subheader("📤 Codebook 報告產出")
+            if st.button("🚀 產出 Codebook 報告"):
+                with st.spinner("📄 報告產出中，請稍候..."):
+                    try:
+                        output_path = "codebook.docx"
+
+                        # 🧠 假設你已經有這個函數
+                        output_path = generate_codebook(
+                            df, column_types, variable_names, {},
+                            code_df=code_df, output_path=output_path
+                        )
+
+                        with open(output_path, "rb") as f:
+                            b64 = base64.b64encode(f.read()).decode()
+                            href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{output_path}">📥 點我下載 Codebook 報告</a>'
+                            st.markdown(href, unsafe_allow_html=True)
+
+                        st.success("✅ 報告產出完成！")
+                    except Exception as e:
+                        st.error(f"❌ 報告產出失敗：{e}")
 
 
 
