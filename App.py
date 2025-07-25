@@ -67,6 +67,11 @@ if data_file:
             code_vars = code_df["variable"].astype(str).str.strip().tolist()
             df_vars = df.columns.tolist()
             common_vars = list(set(code_vars) & set(df_vars))
+            # ➤ 顯示落選的變數（只在 code.csv 裡但主資料中找不到）
+            excluded_vars = sorted(set(code_vars) - set(common_vars))
+            if excluded_vars:
+                st.warning(f"⚠️ 有 {len(excluded_vars)} 個變數未在主資料中找到，已被略過：")
+                st.code(", ".join(excluded_vars), language="text")
 
             st.info(f"✅ 同時存在於主資料與 Codebook 的變數數量：{len(common_vars)}")
 
