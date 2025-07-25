@@ -117,7 +117,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             valid_count = len(data)
             missing_index = df[df[col].isna()].index.tolist()
             missing_count = len(missing_index)
-            table = doc.add_table(rows=6, cols=4)
+            table = doc.add_table(rows=7, cols=4)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Index"
             table.cell(0, 1).text = var_name
