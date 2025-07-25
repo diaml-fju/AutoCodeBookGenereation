@@ -40,6 +40,7 @@ with tab1:
         df = read_uploaded_csv(uploaded_maindata)
         if df is not None:
             st.success(f"✅ 成功讀取主資料：{df.shape[0]} 筆")
+            st.write("📋 主資料欄位名稱：", list(df.columns))
             with st.expander("🔍 預覽主資料"):
                 st.dataframe(df.head())
 
@@ -47,6 +48,7 @@ with tab1:
         code_df = read_uploaded_csv(uploaded_codebook)
         if code_df is not None:
             st.success(f"✅ 成功讀取 code.csv")
+            st.write("📋 code_df 欄位名稱：", list(code_df.columns))
 
     # 🔹 遺失值統計
     if df is not None:
