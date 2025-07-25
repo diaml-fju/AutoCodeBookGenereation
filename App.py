@@ -47,7 +47,7 @@ if data_file:
     df.columns = df.columns.str.strip()  # 去除主資料欄位空白
     st.success("✅ 主資料上傳成功！")
     st.success(df.columns())
-    st.dataframe(df.head())
+    
 
     st.markdown("---")
     st.info("📌 若需產出 Codebook，請繼續上傳 code.csv")
