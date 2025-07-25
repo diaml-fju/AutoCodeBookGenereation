@@ -28,7 +28,6 @@ with tab1:
     - `0`：略過
     - `1`：數值型
     - `2`：類別型
-    - `y1` 或 `y2`：目標變數，分別代表數值型與類別型
     """)
 
     # 🔹 上傳區
@@ -49,6 +48,8 @@ with tab1:
         if code_df is not None:
             st.success(f"✅ 成功讀取 code.csv")
             st.write("📋 code_df 欄位名稱：", list(code_df.columns))
+            # 去除欄位名稱前後空白並轉小寫（例如 'Column ' → 'column'）
+            code_df.columns = code_df.columns.str.strip().str.lower()
 
     # 🔹 遺失值統計
     if df is not None:
@@ -75,8 +76,8 @@ with tab1:
 
     if df is not None and code_df is not None:
         # 去除 Type 欄為 None、空白或 NaN 的欄位
-        code_df["Type"] = code_df["Type"].astype(str).str.strip().str.lower()
-        code_df = code_df[~code_df["Type"].isin(["none", "nan", ""])]
+        code_df["type"] = code_df["type"].astype(str).str.strip().str.lower()
+        code_df = code_df[~code_df["type"].isin(["none", "nan", ""])]
         
         column_types = {}
         variable_names = {}
@@ -84,9 +85,9 @@ with tab1:
         x_counter = y_counter = 1
 
         for _, row in code_df.iterrows():
-            col = row["Variable"]
-            t = str(row["Type"]).strip().lower()
-            target = str(row.get("Target", "")).strip().lower()
+            col = row["variable"]
+            t = str(row["type"]).strip().lower()
+            target = str(row.get("target", "")).strip().lower()
 
             if target:  # 若有填 Target，視為 Y 變數
                 column_roles[col] = f"Y{y_counter}"
