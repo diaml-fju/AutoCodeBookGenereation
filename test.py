@@ -106,8 +106,8 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                 continue
             if df[col].dropna().empty:
                 continue
-
-            desc = df[col].describe()
+            data = df[col].dropna()
+            desc = data.describe()
             table = doc.add_table(rows=4, cols=4)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Index"
@@ -134,38 +134,26 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(4, 1).text = f"{desc['75%']:.3f}"
             table.cell(4, 2).text = "Range)"
             table.cell(4, 3).text = f"{desc['max'] - desc['min']:.3f}"
-
-            # 🔹 Histogram
-            fig, ax = plt.subplots()
-            df[col].dropna().plot(kind="hist", bins=10, color="skyblue", edgecolor="black", ax=ax)
-            ax.set_title(f"Histogram of {col}")
-            tmp1 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
-            plt.tight_layout()
-            plt.savefig(tmp1.name)
-            plt.close()
-            doc.add_picture(tmp1.name, width=Inches(4.5))
-            try: os.unlink(tmp1.name)
-            except PermissionError: pass
-
-            # 🔹 Boxplot + 註解
-            data = df[col].dropna()
-            desc = data.describe()
+            
             q1 = desc['25%']
             q2 = desc['50%']
             q3 = desc['75%']
             minimum = desc['min']
             maximum = desc['max']
 
+            # ➤ 畫圖
             fig2, ax2 = plt.subplots()
-            box = ax2.boxplot(data, vert=True, patch_artist=True, positions=[1],
-                            boxprops=dict(facecolor='lightblue', color='black'))
+            box = ax2.boxplot([data], vert=True, patch_artist=True,
+                            boxprops=dict(facecolor='lightblue', color='black'),
+                            medianprops=dict(color='red'))
+
             ax2.set_title(f"Boxplot of {col}")
             ax2.set_xticks([1])
             ax2.set_xticklabels([col])
 
-            # ➤ 加上統計數值標註
-            def annotate(value, label, y_offset=0.2):
-                ax2.text(1.1, value + y_offset, f"{label}: {value:.2f}", va="center", fontsize=8)
+            # ➤ 加上數值註解
+            def annotate(y, label):
+                ax2.text(1.1, y, f"{label}: {y:.2f}", va="center", fontsize=8)
 
             annotate(minimum, "Min")
             annotate(q1, "Q1")
