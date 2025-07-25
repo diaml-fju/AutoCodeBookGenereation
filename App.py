@@ -55,7 +55,7 @@ if data_file:
 
         # ➤ 清理欄位名稱
         code_df.columns = code_df.columns.str.strip().str.lower()
-
+        st.write("🧪 code_df 欄位名稱：", list(code_df.columns))
         # ➤ 清除 type 欄空值
         code_df["type"] = code_df["type"].astype(str).str.strip().str.lower()
         code_df = code_df[~code_df["type"].isin(["none", "nan", ""])]
