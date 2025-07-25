@@ -114,7 +114,10 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                 continue
             data = df[col].dropna()
             desc = data.describe()
-            table = doc.add_table(rows=5, cols=4)
+            valid_count = len(data)
+            missing_index = df[df[col].isna()].index.tolist()
+            missing_count = len(missing_index)
+            table = doc.add_table(rows=6, cols=4)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Index"
             table.cell(0, 1).text = var_name
@@ -141,6 +144,20 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(4, 2).text = "Range"
             table.cell(4, 3).text = f"{desc['max'] - desc['min']:.3f}"
             
+            table.cell(5, 0).text = "Valid N"
+            table.cell(5, 1).text = str(valid_count)
+            table.cell(5, 2).text = "Missing Count"
+            table.cell(5, 3).text = str(missing_count)
+
+            table.cell(6, 0).text = " "
+            table.cell(6, 1).text = " "
+            table.cell(6, 2).text = "Missing Index"
+            if missing_index:
+                preview = ", ".join(map(str, missing_index[:5]))
+                suffix = " ..." if len(missing_index) > 5 else ""
+                table.cell(6, 3).text = preview + suffix
+            else:
+                table.cell(6, 3).text = "None"
             q1 = desc['25%']
             q2 = desc['50%']
             q3 = desc['75%']
