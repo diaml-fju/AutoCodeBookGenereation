@@ -135,8 +135,9 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(4, 2).text = "Range)"
             table.cell(4, 3).text = f"{desc['max'] - desc['min']:.3f}"
 
+            # 🔹 Histogram
             fig, ax = plt.subplots()
-            df[col].plot(kind="hist", bins=10, color="skyblue", edgecolor="black", ax=ax)
+            df[col].dropna().plot(kind="hist", bins=10, color="skyblue", edgecolor="black", ax=ax)
             ax.set_title(f"Histogram of {col}")
             tmp1 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
@@ -146,25 +147,32 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             try: os.unlink(tmp1.name)
             except PermissionError: pass
 
-            fig2, ax2 = plt.subplots()
-            box = df.boxplot(column=col, ax=ax2, grid=False, patch_artist=True, boxprops=dict(facecolor='lightblue'))
-
-            # ➤ 計算五數摘要
+            # 🔹 Boxplot + 註解
+            data = df[col].dropna()
+            desc = data.describe()
             q1 = desc['25%']
             q2 = desc['50%']
             q3 = desc['75%']
             minimum = desc['min']
             maximum = desc['max']
 
-            # ➤ 加上標註
-            x = 1  # boxplot 當作只有一組資料，x軸位置為1
-            ax2.text(x + 0.05, minimum, f"Min: {minimum:.2f}", va='center', fontsize=8)
-            ax2.text(x + 0.05, q1, f"Q1: {q1:.2f}", va='center', fontsize=8)
-            ax2.text(x + 0.05, q2, f"Median: {q2:.2f}", va='center', fontsize=8)
-            ax2.text(x + 0.05, q3, f"Q3: {q3:.2f}", va='center', fontsize=8)
-            ax2.text(x + 0.05, maximum, f"Max: {maximum:.2f}", va='center', fontsize=8)
-
+            fig2, ax2 = plt.subplots()
+            box = ax2.boxplot(data, vert=True, patch_artist=True, positions=[1],
+                            boxprops=dict(facecolor='lightblue', color='black'))
             ax2.set_title(f"Boxplot of {col}")
+            ax2.set_xticks([1])
+            ax2.set_xticklabels([col])
+
+            # ➤ 加上統計數值標註
+            def annotate(value, label, y_offset=0.2):
+                ax2.text(1.1, value + y_offset, f"{label}: {value:.2f}", va="center", fontsize=8)
+
+            annotate(minimum, "Min")
+            annotate(q1, "Q1")
+            annotate(q2, "Median")
+            annotate(q3, "Q3")
+            annotate(maximum, "Max")
+
             tmp2 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
             plt.savefig(tmp2.name)
