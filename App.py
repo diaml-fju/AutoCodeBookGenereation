@@ -30,73 +30,52 @@ with tab1:
     - `2`：類別型
     """)
 
-    # 🔹 上傳區
-    uploaded_maindata = st.file_uploader("📂 主資料檔（CSV）", type=["csv"])
-    uploaded_codebook = st.file_uploader("📋 變數定義檔 code.csv（需含 Column 與 Type）", type=["csv"])
+    import streamlit as st
+import pandas as pd
 
-    df = code_df = None
-    if uploaded_maindata:
-        df = read_uploaded_csv(uploaded_maindata)
-        if df is not None:
-            st.success(f"✅ 成功讀取主資料：{df.shape[0]} 筆")
-            st.write("📋 主資料欄位名稱：", list(df.columns))
-            with st.expander("🔍 預覽主資料"):
-                st.dataframe(df.head())
+# 🔹 上傳主資料
+st.header("📁 資料上傳")
+data_file = st.file_uploader("請上傳主資料 CSV", type=["csv"], key="data")
 
-    if uploaded_codebook:
-        code_df = read_uploaded_csv(uploaded_codebook)
-        if code_df is not None:
-            st.success(f"✅ 成功讀取 code.csv")
-            st.write("📋 code_df 欄位名稱：", list(code_df.columns))
-            # 去除欄位名稱前後空白並轉小寫（例如 'Column ' → 'column'）
-            code_df.columns = code_df.columns.str.strip().str.lower()
+df = None
+if data_file:
+    df = pd.read_csv(data_file)
+    st.success("✅ 主資料上傳成功！")
+    st.dataframe(df.head())
 
-    # 🔹 遺失值統計
-    if df is not None:
-        st.markdown("---")
-        st.subheader("📉 遺失值統計")
-        na_counts = df.isnull().sum()
-        na_percent = df.isnull().mean() * 100
-        na_df = pd.DataFrame({
-            "欄位名稱": na_counts.index,
-            "遺失數": na_counts.values,
-            "遺失比例 (%)": na_percent.round(2).values
-        })
-        na_df = na_df[na_df["遺失數"] > 0]
-        if na_df.empty:
-            st.info("✅ 無遺失值")
-        else:
-            st.warning("⚠️ 以下欄位有遺失值：")
-            st.dataframe(na_df)
-            st.write(f"📦 若刪除所有含遺失值資料，剩餘筆數為：**{df.dropna().shape[0]} 筆**")
-
-    # 🔹 報告產出區
     st.markdown("---")
-    
+    st.info("📌 若需產出 Codebook，請繼續上傳 code.csv")
 
-    if df is not None and code_df is not None:
-        # 去除 Type 欄為 None、空白或 NaN 的欄位
+    # 🔹 上傳第二個檔案：code.csv
+    code_file = st.file_uploader("📄 請上傳 code.csv（可選）", type=["csv"], key="code")
+
+    if code_file:
+        code_df = pd.read_csv(code_file)
+        st.success("✅ code.csv 上傳成功！")
+
+        # ➤ 清理欄位名稱
+        code_df.columns = code_df.columns.str.strip().str.lower()
+
+        # ➤ 清除 type 欄空值
         code_df["type"] = code_df["type"].astype(str).str.strip().str.lower()
         code_df = code_df[~code_df["type"].isin(["none", "nan", ""])]
-        
+
         column_types = {}
         variable_names = {}
         column_roles = {}
         x_counter = y_counter = 1
 
         for _, row in code_df.iterrows():
-            col = row["variable"]
-            t = str(row["type"]).strip().lower()
+            col = row["column"]
+            t = row["type"]
             target = str(row.get("target", "")).strip().lower()
 
-            if target:  # 若有填 Target，視為 Y 變數
+            if target:
                 column_roles[col] = f"Y{y_counter}"
                 variable_names[col] = f"Y{y_counter}"
                 y_counter += 1
-                # 不需要加入 column_types（通常 Y 不會統計型別）
                 continue
 
-            # 根據 Type 指定類型
             if t == "numerical":
                 column_roles[col] = f"X{x_counter}"
                 column_types[col] = 1
@@ -111,7 +90,7 @@ with tab1:
 
             variable_names[col] = column_roles.get(col, col)
 
-        # 🔹 變數類型統計
+        # 🔸 顯示統計摘要與按鈕
         st.subheader("📊 變數類型統計")
         type_count = pd.Series(column_types).value_counts().sort_index()
         type_label_map = {1: "數值型 (Numerical)", 2: "類別型 (Categorical)"}
@@ -120,18 +99,20 @@ with tab1:
             "欄位數": type_count.values
         })
         st.dataframe(type_summary)
-        st.markdown("---")
 
+        st.markdown("---")
         st.subheader("📤 Codebook 報告產出")
-        category_definitions = {}  # 可加入對應標籤
+
         if st.button("🚀 產出 Codebook 報告"):
-            with st.spinner("📄 產出中，請稍候..."):
+            with st.spinner("📄 報告產出中，請稍候..."):
                 try:
                     output_path = "codebook.docx"
+                    # 🔁 替換成你的產生 codebook 函數
                     output_path = generate_codebook(
-                        df, column_types, variable_names, category_definitions,
+                        df, column_types, variable_names, {},
                         code_df=code_df, output_path=output_path
                     )
+
                     with open(output_path, "rb") as f:
                         b64 = base64.b64encode(f.read()).decode()
                         href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{output_path}">📥 點我下載 Codebook 報告</a>'
@@ -139,6 +120,7 @@ with tab1:
                     st.success("✅ 報告產出完成！")
                 except Exception as e:
                     st.error(f"❌ 報告產出失敗：{e}")
+
 
 
 
