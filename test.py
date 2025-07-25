@@ -108,7 +108,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                 continue
             data = df[col].dropna()
             desc = data.describe()
-            table = doc.add_table(rows=4, cols=4)
+            table = doc.add_table(rows=5, cols=4)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Index"
             table.cell(0, 1).text = var_name
@@ -132,7 +132,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
 
             table.cell(4, 0).text = "Q3 (75%)"
             table.cell(4, 1).text = f"{desc['75%']:.3f}"
-            table.cell(4, 2).text = "Range)"
+            table.cell(4, 2).text = "Range"
             table.cell(4, 3).text = f"{desc['max'] - desc['min']:.3f}"
             
             q1 = desc['25%']
