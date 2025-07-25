@@ -59,9 +59,9 @@ if data_file:
         code_df = pd.read_csv(code_file)
         code_df = code_df.dropna(how="all")
         # 去除 Variable 欄為空白或僅含空格的列
-        code_df = code_df[code_df["variable"].astype(str).str.strip() != ""].copy()
+        
         code_df.columns = code_df.columns.str.strip().str.lower()
-
+        code_df = code_df[code_df["variable"].astype(str).str.strip() != ""].copy()
         if "variable" not in code_df.columns or "type" not in code_df.columns:
             st.error("❌ code.csv 檔案中需包含 'Variable' 與 'Type' 欄位")
         else:
