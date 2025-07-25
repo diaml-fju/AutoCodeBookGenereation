@@ -42,6 +42,7 @@ code_df = None
 
 if data_file:
     df = pd.read_csv(data_file)
+    df = df.dropna(how="all")
     df.columns = df.columns.str.strip()  # 去除主資料欄位空白
     st.success("✅ 主資料上傳成功！")
     st.dataframe(df.head())
@@ -54,6 +55,7 @@ if data_file:
 
     if code_file:
         code_df = pd.read_csv(code_file)
+        code_df = code_df.dropna(how="all")
         code_df.columns = code_df.columns.str.strip().str.lower()
 
         if "variable" not in code_df.columns or "type" not in code_df.columns:
