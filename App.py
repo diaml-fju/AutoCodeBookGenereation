@@ -23,12 +23,37 @@ with tab1:
     st.title("📄 自動化 Codebook 產生工具")
 
     st.markdown("""### 📘 功能說明
-    本工具可根據 `code.csv` 中的 Type 欄位，對主資料進行以下轉換：
+本工具將協助你依據主資料與對應的 `code.csv` 設定檔，自動產出變數摘要報告（Codebook）。
 
-    - `0`：略過
-    - `1`：數值型
-    - `2`：類別型
+請依下列步驟操作：
+
+1. **上傳主資料 CSV 檔**
+    - 系統會自動去除全為空值的列與欄位名稱中的多餘空白或 `Unnamed` 欄。
     
+2. **上傳 Codebook 設定檔（`code.csv`）**
+    - 檔案需包含以下欄位：
+        - `Variable`：對應主資料的欄位名稱。
+        - `Type`：變數類型，支援下列設定：
+            - `0`、空白、或 `none`：略過
+            - `1`、`numerical`、`連續`：數值型變數
+            - `2`、`categorical`、`類別`：類別型變數
+        - （選填）`Target`：
+            - 若存在，標註為 `y`, `yes`, `target`, `1` 等者將視為目標變數（Y）。
+            - 若無此欄位，系統將自動視所有變數為自變數（X）。
+
+3. **系統自動處理：**
+    - 檢查主資料與 Codebook 的欄位是否一致，顯示未匹配變數提示。
+    - 自動依據 `Type` 與 `Target` 欄位判定變數角色與屬性。
+    - 顯示目前識別的數值型與類別型變數數量統計。
+
+4. **產出 Codebook 報告：**
+    - 報告將包括：
+        - 缺失值統計
+        - 敘述統計（如：平均、標準差、四分位數、最大最小值）
+        - Boxplot 與 Histogram 圖表
+        - 類別變數的類別分布與百分比
+
+📥 完成設定後點擊「🚀 產出 Codebook 報告」按鈕，即可下載 Word 格式的報告。
     """)
 
     import streamlit as st
@@ -62,6 +87,8 @@ if data_file:
         # 去除 Variable 欄為空白或僅含空格的列
         
         code_df.columns = code_df.columns.str.strip().str.lower()
+        if "target" not in code_df.columns:
+            st.info("🔍 未偵測到 `Target` 欄位，預設所有變數皆為自變數（X）")
         
         if "variable" not in code_df.columns or "type" not in code_df.columns:
             st.error("❌ code.csv 檔案中需包含 'Variable' 與 'Type' 欄位")
