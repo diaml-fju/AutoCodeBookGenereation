@@ -205,5 +205,19 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             try: os.unlink(tmp2.name)
             except PermissionError: pass
 
+            # ➤ 畫 histogram
+            fig3, ax3 = plt.subplots()
+            ax3.hist(data, bins='auto', color='lightgreen', edgecolor='black')
+            ax3.set_title(f"Histogram of {col}")
+            ax3.set_xlabel(col)
+            ax3.set_ylabel("Frequency")
+
+            tmp3 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+            plt.tight_layout()
+            plt.savefig(tmp3.name)
+            plt.close()
+            doc.add_picture(tmp3.name, width=Inches(4.5))
+            try: os.unlink(tmp3.name)
+            except PermissionError: pass
     doc.save(output_path)
     return output_path
