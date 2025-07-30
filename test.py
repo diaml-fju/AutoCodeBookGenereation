@@ -17,6 +17,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
 
     # ✅ 只統計實際存在欄位的缺失值
     valid_cols = [col for col in column_types.keys() if col in df.columns]
+    
     na_counts = df[valid_cols].isnull().sum()
     na_percent = df[valid_cols].isnull().mean() * 100
 
@@ -74,6 +75,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             value_counts = df[col].value_counts(dropna=False).sort_index()
             total = len(df)
             valid_count = df[col].notna().sum()
+            missing_index = df[df[col].isna()].index.tolist()
             missing_count = df[col].isna().sum()
             defs = category_definitions.get(col, {})
             lines = [
@@ -82,7 +84,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ]
             summary_text = "\n".join(lines)
 
-            table = doc.add_table(rows=4, cols=2)
+            table = doc.add_table(rows=5, cols=2)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Variable Name"
             table.cell(0, 1).text = f"{col} ({var_name})"
@@ -92,6 +94,13 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(2, 1).text = str(valid_count)
             table.cell(3, 0).text = "NoV count"
             table.cell(3, 1).text = str(missing_count)
+            table.cell(4, 0).text = "NoV index"
+            if missing_index:
+                preview = ", ".join(map(str, missing_index[:5]))
+                suffix = " ..." if len(missing_index) > 5 else ""
+                table.cell(4, 1).text = preview + suffix
+            else:
+                table.cell(4, 1).text = "None"
 
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
