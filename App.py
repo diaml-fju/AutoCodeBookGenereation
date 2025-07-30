@@ -16,7 +16,7 @@ def read_uploaded_csv(uploaded_file):
             continue
     st.error("❌ 檔案無法讀取，請確認是否為有效的 CSV 並使用常見編碼（UTF-8、BIG5、CP950）")
     return None
-tab1, tab2 = st.tabs(["📄 Codebook 產生器","📊 進階分析工具", ])
+tab1, tab2 = st.tabs(["📄 Codebook 產生器","📊 進階分析工具(尚在處理)", ])
 
 
 with tab1:
