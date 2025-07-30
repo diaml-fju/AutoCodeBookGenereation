@@ -207,7 +207,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
 
             # ➤ 畫 histogram
             fig3, ax3 = plt.subplots()
-            ax3.hist(data, bins='auto', color='lightgreen', edgecolor='black')
+            ax3.hist(data, bins='auto', color='lightblue', edgecolor='black')
             ax3.set_title(f"Histogram of {col}")
             ax3.set_xlabel(col)
             ax3.set_ylabel("Frequency")
