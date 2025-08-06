@@ -29,12 +29,17 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
     }).query("`missing_count` > 0").reset_index(drop=True)
 
     if not na_df.empty:
-        table = doc.add_table(rows=1 + len(na_df), cols=3)
+        table = doc.add_table(rows=1 + len(na_df), cols=4)
         table.style = "Table Grid"
-        table.cell(0, 0).text = "Column"
-        table.cell(0, 1).text = "Missing Count"
-        table.cell(0, 2).text = "Missing Rate (%)"
+        table.cell(0, 0).text = "Index"
+        table.cell(0, 1).text = "Variable"
+        table.cell(0, 2).text = "Missing Count"
+        table.cell(0, 3).text = "Missing Rate (%)"
         for i, row in na_df.iterrows():
+            col_name = row["column"]
+            col_index = df.columns.get_loc(col_name)  # 找到在 df 中的位置（從 0 開始）
+            index_label = f"x{col_index + 1}"         # 顯示為 x1, x2, x3...
+            table.cell(i +1 , 0).text = index_label
             table.cell(i + 1, 0).text = str(row["column"])
             table.cell(i + 1, 1).text = str(row["missing_count"])
             table.cell(i + 1, 2).text = str(row["missing_rate (%)"])
@@ -70,6 +75,21 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         var_name = variable_names.get(col, col)
         doc.add_heading(f"Variable: {col} ({var_name})", level=2)
 
+        # ➕ 加入 Description 段落
+        description = None
+        if code_df is not None:
+            desc_col_candidates = ['description', 'desc', '說明']
+            for desc_col in desc_col_candidates:
+                if desc_col in code_df.columns:
+                    row_match = code_df[code_df["variable"] == col]
+                    if not row_match.empty:
+                        description = str(row_match.iloc[0][desc_col])
+                    break
+
+        if description:
+            doc.add_paragraph(f"📘 Description: {description}")
+
+
         # 🟦 類別型
         if type_code == 2:
             value_counts = df[col].value_counts(dropna=False).sort_index()
@@ -84,7 +104,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ]
             summary_text = "\n".join(lines)
 
-            table = doc.add_table(rows=5, cols=2)
+            table = doc.add_table(rows=6, cols=2)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Variable Name"
             table.cell(0, 1).text = f"{col} ({var_name})"
@@ -95,13 +115,15 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(3, 0).text = "NoV count"
             table.cell(3, 1).text = str(missing_count)
             table.cell(4, 0).text = "NoV index"
+
             if missing_index:
                 preview = ", ".join(map(str, missing_index[:5]))
                 suffix = " ..." if len(missing_index) > 5 else ""
                 table.cell(4, 1).text = preview + suffix
             else:
                 table.cell(4, 1).text = "None"
-
+            table.cell(5, 0).text = "Description"
+            table.cell(5, 1).text = description if description else "No description available
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}")
@@ -139,7 +161,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             valid_count = len(data)
             missing_index = df[df[col].isna()].index.tolist()
             missing_count = len(missing_index)
-            table = doc.add_table(rows=7, cols=4)
+            table = doc.add_table(rows=8, cols=4)
             table.style = "Table Grid"
             table.cell(0, 0).text = "Index"
             table.cell(0, 1).text = var_name
@@ -180,6 +202,10 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                 table.cell(6, 3).text = preview + suffix
             else:
                 table.cell(6, 3).text = "None"
+
+            table.cell(7, 0).text = "Description"
+            table.cell(7, 1).text = description if description else "No description available"
+
             q1 = desc['25%']
             q2 = desc['50%']
             q3 = desc['75%']
