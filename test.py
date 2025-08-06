@@ -136,6 +136,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                 table.cell(4, 1).text = "None"
             table.cell(5, 0).text = "Description"
             table.cell(5, 1).text = description if description else "No description available"
+            
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}",fontproperties=ch_font)
@@ -149,7 +150,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
 
             # ➤ 在每根長條上標出數值（轉為 int 顯示）
             for i, (_, count) in enumerate(value_counts.items()):
-                ax.text(i, count + 0.5, str(int(count)), ha='center', va='bottom', fontsize=8)
+                ax.text(i, count + 0.5, str(int(count)), ha='center', va='bottom', fontsize=8, fontproperties=ch_font)
 
 
             tmp = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
@@ -237,7 +238,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
 
             # ➤ 加上數值註解
             def annotate(y, label):
-                ax2.text(1.1, y, f"{label}: {y:.2f}", va="center", fontsize=8)
+                ax2.text(1.1, y, f"{label}: {y:.2f}", va="center", fontsize=8, fontproperties=ch_font)
 
             annotate(minimum, "Min")
             annotate(q1, "Q1")
