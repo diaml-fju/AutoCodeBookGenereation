@@ -6,7 +6,7 @@ import tempfile
 import os
 from matplotlib.font_manager import FontProperties
 def get_chinese_font():
-    custom_font_path = "font/NotoSansTC-VariableFont_wght.ttf"
+    custom_font_path = "font/NotoSerifTC-VariableFont_wght.ttf"
     if os.path.exists(custom_font_path):
         return FontProperties(fname=custom_font_path)
     return None
@@ -135,7 +135,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ax.set_title(f"Count Plot of {col}",fontproperties=ch_font)
 
             # ➤ 設定 x 軸標籤為字串（避免顯示 1.0, 2.0）
-            ax.set_xticks(range(len(value_counts)))
+            ax.set_xticks(range(len(value_counts)),fontproperties = ch_font)
             ax.set_xticklabels([
                 str(int(cat)) if isinstance(cat, float) and cat.is_integer() else str(cat)
                 for cat in value_counts.index
