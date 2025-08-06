@@ -37,8 +37,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
         table.cell(0, 3).text = "Missing Rate (%)"
         for i, row in na_df.iterrows():
             col_name = row["column"]
-            col_index = df.columns.get_loc(col_name)  # 找到在 df 中的位置（從 0 開始）
-            index_label = f"x{col_index + 1}"         # 顯示為 x1, x2, x3...
+            index_label = variable_names.get(col_name, col_name)
             table.cell(i + 1, 0).text = index_label
             table.cell(i + 1, 1).text = str(row["column"])
             table.cell(i + 1, 2).text = str(row["missing_count"])
@@ -85,9 +84,6 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                     if not row_match.empty:
                         description = str(row_match.iloc[0][desc_col])
                     break
-
-        if description:
-            doc.add_paragraph(f"📘 Description: {description}")
 
 
         # 🟦 類別型
@@ -204,6 +200,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                 table.cell(6, 3).text = "None"
 
             table.cell(7, 0).text = "Description"
+            table.cell(7, 1).merge(table.cell(7, 3))  # 合併單元格
             table.cell(7, 1).text = description if description else "No description available"
 
             q1 = desc['25%']
