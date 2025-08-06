@@ -6,17 +6,10 @@ import tempfile
 import os
 from matplotlib.font_manager import FontProperties
 def get_chinese_font():
-    font_candidates = [
-        "/System/Library/Fonts/Supplemental/PingFang.ttc",          # ✅ 新 macOS
-        "/System/Library/Fonts/STHeiti Light.ttc",                  # 舊 macOS
-        "C:/Windows/Fonts/msjh.ttc",                                # Windows 微軟正黑體
-        "/usr/share/fonts/truetype/arphic/ukai.ttc",                # Linux
-        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",   # Linux
-    ]
-    for path in font_candidates:
-        if os.path.exists(path):
-            return FontProperties(fname=path)
-    return None  # 找不到時就不要套用
+    custom_font_path = "fonts/NotoSansTC-VariableFont_wght.ttf"
+    if os.path.exists(custom_font_path):
+        return FontProperties(fname=custom_font_path)
+    return None
 
 ch_font = get_chinese_font()
 
