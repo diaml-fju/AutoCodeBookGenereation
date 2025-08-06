@@ -133,7 +133,10 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}",fontproperties=ch_font)
-
+            ax.set_ylabel("Frequency", fontproperties=ch_font)  # ✅ Y 軸標題
+            for label in ax.get_yticklabels():                  # ✅ Y 軸數字字體
+                label.set_fontproperties(ch_font)
+            
             # ➤ 設定 x 軸標籤為字串（避免顯示 1.0, 2.0）
             ax.set_xticks(range(len(value_counts)))
             ax.set_xticklabels([
@@ -226,9 +229,12 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                             medianprops=dict(color='red'))
 
             ax2.set_title(f"Boxplot of {col}",fontproperties=ch_font)
+            for label in ax2.get_yticklabels():
+                label.set_fontproperties(ch_font)
+
             ax2.set_xticks([1])
             ax2.set_xticklabels([col],fontproperties=ch_font)
-
+            ax2.set_ylabel("Value",fontproperties=ch_font)
             # ➤ 加上數值註解
             def annotate(y, label):
                 ax2.text(1.1, y, f"{label}: {y:.2f}", va="center", fontsize=8, fontproperties=ch_font)
@@ -253,6 +259,8 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ax3.set_title(f"Histogram of {col}",fontproperties=ch_font)
             ax3.set_xlabel(col,fontproperties=ch_font)
             ax3.set_ylabel("Frequency",fontproperties=ch_font)
+            for label in ax3.get_yticklabels():
+                label.set_fontproperties(ch_font)
 
             tmp3 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
