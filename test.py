@@ -258,6 +258,8 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ax3.hist(data, bins='auto', color='lightblue', edgecolor='black')
             ax3.set_title(f"Histogram of {col}",fontproperties=ch_font)
             ax3.set_xlabel(col,fontproperties=ch_font)
+            for label in ax3.get_xticklabels():
+                label.set_fontproperties(ch_font)
             ax3.set_ylabel("Frequency",fontproperties=ch_font)
             for label in ax3.get_yticklabels():
                 label.set_fontproperties(ch_font)
