@@ -6,7 +6,7 @@ import tempfile
 import os
 from matplotlib.font_manager import FontProperties
 def get_chinese_font():
-    custom_font_path = "fonts/NotoSansTC-VariableFont_wght.ttf"
+    custom_font_path = "font/NotoSansTC-VariableFont_wght.ttf"
     if os.path.exists(custom_font_path):
         return FontProperties(fname=custom_font_path)
     return None
