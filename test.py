@@ -134,14 +134,14 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             table.cell(5, 1).text = description if description else "No description available"
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
-            ax.set_title(f"Count Plot of {col}",FontProperties=ch_font)
+            ax.set_title(f"Count Plot of {col}",fontproperties=ch_font)
 
             # ➤ 設定 x 軸標籤為字串（避免顯示 1.0, 2.0）
             ax.set_xticks(range(len(value_counts)))
             ax.set_xticklabels([
                 str(int(cat)) if isinstance(cat, float) and cat.is_integer() else str(cat)
                 for cat in value_counts.index
-            ],FontProperties=ch_font)
+            ],fontproperties=ch_font)
 
             # ➤ 在每根長條上標出數值（轉為 int 顯示）
             for i, (_, count) in enumerate(value_counts.items()):
@@ -227,9 +227,9 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                             boxprops=dict(facecolor='lightblue', color='black'),
                             medianprops=dict(color='red'))
 
-            ax2.set_title(f"Boxplot of {col}",FontProperties=ch_font)
+            ax2.set_title(f"Boxplot of {col}",fontproperties=ch_font)
             ax2.set_xticks([1])
-            ax2.set_xticklabels([col],FontProperties=ch_font)
+            ax2.set_xticklabels([col],fontproperties=ch_font)
 
             # ➤ 加上數值註解
             def annotate(y, label):
@@ -252,8 +252,8 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             # ➤ 畫 histogram
             fig3, ax3 = plt.subplots()
             ax3.hist(data, bins='auto', color='lightblue', edgecolor='black')
-            ax3.set_title(f"Histogram of {col}",FontProperties=ch_font)
-            ax3.set_xlabel(col,FontProperties=ch_font)
+            ax3.set_title(f"Histogram of {col}",fontproperties=ch_font)
+            ax3.set_xlabel(col,fontproperties=ch_font)
             ax3.set_ylabel("Frequency")
 
             tmp3 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
