@@ -259,7 +259,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ax3.hist(data, bins='auto', color='lightblue', edgecolor='black')
             ax3.set_title(f"Histogram of {col}",fontproperties=ch_font)
             ax3.set_xlabel(col,fontproperties=ch_font)
-            ax3.set_ylabel("Frequency")
+            ax3.set_ylabel("Frequency",fontproperties=ch_font)
 
             tmp3 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
             plt.tight_layout()
