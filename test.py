@@ -135,12 +135,12 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             ax.set_title(f"Count Plot of {col}",fontproperties=ch_font)
 
             # ➤ 設定 x 軸標籤為字串（避免顯示 1.0, 2.0）
-            ax.set_xticks(range(len(value_counts)),fontproperties = ch_font)
+            ax.set_xticks(range(len(value_counts)))
             ax.set_xticklabels([
                 str(int(cat)) if isinstance(cat, float) and cat.is_integer() else str(cat)
                 for cat in value_counts.index
             ],fontproperties=ch_font)
-
+            ax.set_xlabel(col,fontproperties=ch_font)
             # ➤ 在每根長條上標出數值（轉為 int 顯示）
             for i, (_, count) in enumerate(value_counts.items()):
                 ax.text(i, count + 0.5, str(int(count)), ha='center', va='bottom', fontsize=8, fontproperties=ch_font)
