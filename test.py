@@ -39,10 +39,10 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             col_name = row["column"]
             col_index = df.columns.get_loc(col_name)  # 找到在 df 中的位置（從 0 開始）
             index_label = f"x{col_index + 1}"         # 顯示為 x1, x2, x3...
-            table.cell(i +1 , 0).text = index_label
-            table.cell(i + 1, 0).text = str(row["column"])
-            table.cell(i + 1, 1).text = str(row["missing_count"])
-            table.cell(i + 1, 2).text = str(row["missing_rate (%)"])
+            table.cell(i + 1, 0).text = index_label
+            table.cell(i + 1, 1).text = str(row["column"])
+            table.cell(i + 1, 2).text = str(row["missing_count"])
+            table.cell(i + 1, 3).text = str(row["missing_rate (%)"])
     else:
         doc.add_paragraph("No missing values in any columns.")
 
@@ -123,7 +123,7 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             else:
                 table.cell(4, 1).text = "None"
             table.cell(5, 0).text = "Description"
-            table.cell(5, 1).text = description if description else "No description available
+            table.cell(5, 1).text = description if description else "No description available"
             fig, ax = plt.subplots()
             value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
             ax.set_title(f"Count Plot of {col}")
