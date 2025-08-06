@@ -4,18 +4,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tempfile
 import os
-import matplotlib
-import platform 
-# ✅ 自動偵測系統並設定支援中文字型
-if platform.system() == "Darwin":  # macOS
-    matplotlib.rcParams['font.family'] = 'Heiti TC'
-elif platform.system() == "Windows":
-    matplotlib.rcParams['font.family'] = 'Microsoft JhengHei'
-else:  # Linux or other
-    matplotlib.rcParams['font.sans-serif'] = ['Arial Unicode MS']
-
 from matplotlib.font_manager import FontProperties
-ch_font = FontProperties(fname="/System/Library/Fonts/STHeiti Light.ttc")  # macOS 字型
+def get_chinese_font():
+    font_candidates = [
+        "/System/Library/Fonts/Supplemental/PingFang.ttc",          # ✅ 新 macOS
+        "/System/Library/Fonts/STHeiti Light.ttc",                  # 舊 macOS
+        "C:/Windows/Fonts/msjh.ttc",                                # Windows 微軟正黑體
+        "/usr/share/fonts/truetype/arphic/ukai.ttc",                # Linux
+        "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc",   # Linux
+    ]
+    for path in font_candidates:
+        if os.path.exists(path):
+            return FontProperties(fname=path)
+    return None  # 找不到時就不要套用
+
+ch_font = get_chinese_font()
+
 
 def generate_codebook(df, column_types, variable_names, category_definitions, code_df=None, output_path="codebook.docx", preview_mode=False):
     if output_path is None:
