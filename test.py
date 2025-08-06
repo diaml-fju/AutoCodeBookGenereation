@@ -4,6 +4,15 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import tempfile
 import os
+import matplotlib
+import platform 
+# ✅ 自動偵測系統並設定支援中文字型
+if platform.system() == "Darwin":  # macOS
+    matplotlib.rcParams['font.family'] = 'Heiti TC'
+elif platform.system() == "Windows":
+    matplotlib.rcParams['font.family'] = 'Microsoft JhengHei'
+else:  # Linux or other
+    matplotlib.rcParams['font.sans-serif'] = ['Arial Unicode MS']
 
 def generate_codebook(df, column_types, variable_names, category_definitions, code_df=None, output_path="codebook.docx", preview_mode=False):
     if output_path is None:
