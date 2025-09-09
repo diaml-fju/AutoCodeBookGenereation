@@ -254,8 +254,16 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             except PermissionError: pass
 
             # ➤ 畫 histogram
+            import numpy as np
             fig3, ax3 = plt.subplots()
-            ax3.hist(data, bins='auto', color='lightblue', edgecolor='black')
+            # 判斷是否為整數型資料（全部或幾乎都是整數）
+            if np.allclose(data, data.astype(int)):
+                # 每個整數獨立一個 bin
+                bins = np.arange(data.min(), data.max() + 2) - 0.5
+            else:
+                # 使用自動分箱（適合連續型數據）
+                bins = 'auto'
+            ax3.hist(data, bins=bins, color='lightblue', edgecolor='black')
             ax3.set_title(f"Histogram of {col}",fontproperties=ch_font)
             ax3.set_xlabel(col,fontproperties=ch_font)
             for label in ax3.get_xticklabels():
