@@ -2,3 +2,5 @@ streamlit
 python-docx
 matplotlib
 pandas
+numpy
+seaborn
