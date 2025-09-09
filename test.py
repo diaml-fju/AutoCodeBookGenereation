@@ -279,5 +279,28 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
             doc.add_picture(tmp3.name, width=Inches(4.5))
             try: os.unlink(tmp3.name)
             except PermissionError: pass
+
+                        # ➤ 畫 KDE
+            if len(data) > 1:
+                import seaborn as sns
+                fig4, ax4 = plt.subplots()
+                sns.kdeplot(data, ax=ax4, color="blue", linewidth=1.5, fill=True, alpha=0.3)
+
+                ax4.set_title(f"KDE Plot of {col}", fontproperties=ch_font)
+                ax4.set_xlabel(col, fontproperties=ch_font)
+                for label in ax4.get_xticklabels():
+                    label.set_fontproperties(ch_font)
+                ax4.set_ylabel("Density", fontproperties=ch_font)
+                for label in ax4.get_yticklabels():
+                    label.set_fontproperties(ch_font)
+
+                tmp4 = tempfile.NamedTemporaryFile(delete=False, suffix=".png")
+                plt.tight_layout()
+                plt.savefig(tmp4.name)
+                plt.close()
+                doc.add_picture(tmp4.name, width=Inches(4.5))
+                try: os.unlink(tmp4.name)
+                except PermissionError: pass
+
     doc.save(output_path)
     return output_path
