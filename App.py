@@ -86,7 +86,7 @@ df = None
 code_df = None
 
 if data_file:
-    df = pd.read_csv(data_file)
+    df = pd.read_uploaded_csv(data_file)
     if df is not None:
         df = df.dropna(how="all")
         df.columns = df.columns.str.strip()
@@ -107,7 +107,7 @@ if data_file:
     code_file = st.file_uploader("📄 請上傳 Codebook 設定檔（code.csv）", type=["csv"], key="code")
 
     if code_file:
-        code_df = pd.read_csv(code_file)
+        code_df = pd.read_uploaded_csv(code_file)
         if code_df is not None:
             code_df = code_df.dropna(how="all")
             # 去除 Variable 欄為空白或僅含空格的列
