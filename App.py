@@ -87,6 +87,12 @@ code_df = None
 
 if data_file:
     df = pd.read_csv(data_file)
+    if df is not None:
+        df = df.dropna(how="all")
+        df.columns = df.columns.str.strip()
+        df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+        st.success("✅ 主資料上傳成功！")
+        st.dataframe(df.head())    
     df = df.dropna(how="all")
     df.columns = df.columns.str.strip()  # 去除主資料欄位空白
     df = df.loc[:, ~df.columns.str.contains("^Unnamed")] #去除主資料開頭為 Unnamed
@@ -102,10 +108,11 @@ if data_file:
 
     if code_file:
         code_df = pd.read_csv(code_file)
-        code_df = code_df.dropna(how="all")
-        # 去除 Variable 欄為空白或僅含空格的列
-        
-        code_df.columns = code_df.columns.str.strip().str.lower()
+        if code_df is not None:
+            code_df = code_df.dropna(how="all")
+            # 去除 Variable 欄為空白或僅含空格的列
+            
+            code_df.columns = code_df.columns.str.strip().str.lower()
         if "target" not in code_df.columns:
             st.info("🔍 未偵測到 `Target` 欄位，預設所有變數皆為自變數（X）")
         
