@@ -91,15 +91,6 @@ def generate_codebook_fast(
                 plt.tight_layout(); plt.savefig(buf, format="png", dpi=72); plt.close(fig)
                 buf.seek(0); doc.add_picture(buf, width=Inches(4.0)); buf.close()
 
-                # KDE (選配)
-                if include_kde and len(data) > 1:
-                    buf = BytesIO()
-                    fig, ax = plt.subplots()
-                    sns.kdeplot(data, ax=ax, color="blue", linewidth=1.5, fill=True, alpha=0.3)
-                    ax.set_title(f"KDE Plot of {col}")
-                    ax.set_xlabel(col); ax.set_ylabel("Density")
-                    plt.tight_layout(); plt.savefig(buf, format="png", dpi=72); plt.close(fig)
-                    buf.seek(0); doc.add_picture(buf, width=Inches(4.0)); buf.close()
 
         # 類別型
         elif column_types[col] == 2:
