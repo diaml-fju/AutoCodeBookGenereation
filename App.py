@@ -3,7 +3,7 @@ import pandas as pd
 import base64
 import os
 import io
-
+from fast import generate_codebook_fast  # 確保 fast.py 有放對位置並含有該函式
 from test import generate_codebook  # 確保 test.py 有放對位置並含有該函式
 
 st.set_page_config(page_title="Codebook 產生器", layout="wide")
@@ -215,6 +215,25 @@ if data_file:
                         st.success("✅ 報告產出完成！")
                     except Exception as e:
                         st.error(f"❌ 報告產出失敗：{e}")
+            elif st.button("🚀 快速產出 Codebook 報告 (Fast Mode)"):
+                with st.spinner("📄 快速報告產出中，請稍候..."):
+                    try:
+                        output_path = "codebook_fast.docx"
+
+                        # 使用快速版函數
+                        output_path = generate_codebook_fast(
+                            df, column_types, variable_names, {},
+                            code_df=code_df, output_path=output_path
+                        )
+
+                        with open(output_path, "rb") as f:
+                            b64 = base64.b64encode(f.read()).decode()
+                            href = f'<a href="data:application/vnd.openxmlformats-officedocument.wordprocessingml.document;base64,{b64}" download="{output_path}">📥 點我下載快速版 Codebook 報告</a>'
+                            st.markdown(href, unsafe_allow_html=True)
+
+                        st.success("✅ 快速版報告產出完成！")
+                    except Exception as e:
+                        st.error(f"❌ 快速版報告產出失敗：{e}")
 
 
 
