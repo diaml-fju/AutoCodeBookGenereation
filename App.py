@@ -92,16 +92,11 @@ if data_file:
         df.columns = df.columns.str.strip()
         df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
         st.success("✅ 主資料上傳成功！")
-        st.dataframe(df.head())    
-    df = df.dropna(how="all")
-    df.columns = df.columns.str.strip()  # 去除主資料欄位空白
-    df = df.loc[:, ~df.columns.str.contains("^Unnamed")] #去除主資料開頭為 Unnamed
-    st.success("✅ 主資料上傳成功！")
-    
-    st.dataframe(df.head())
+        st.dataframe(df.head())
 
     st.markdown("---")
     st.info("📌 若需產出 Codebook，請繼續上傳 code.csv")
+
 
     # 📄 第二步：上傳 code.csv
     code_file = st.file_uploader("📄 請上傳 Codebook 設定檔（code.csv）", type=["csv"], key="code")
