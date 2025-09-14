@@ -3,12 +3,14 @@ from docx import Document
 from docx.shared import Inches
 import matplotlib.pyplot as plt
 import pandas as pd
-import seaborn as sns
 import numpy as np
+import seaborn as sns
 
-def generate_codebook_fast(df, column_types, variable_names, category_definitions, 
-                           code_df=None, output_path="codebook_fast.docx", 
-                           include_figures=True):
+def generate_codebook_fast(
+    df, column_types, variable_names, category_definitions, 
+    code_df=None, output_path="codebook_fast.docx", 
+    include_figures=True, include_kde=False  # ← 新增 KDE 選配
+):
     if output_path is None:
         output_path = "codebook_fast.docx"
 
@@ -73,8 +75,8 @@ def generate_codebook_fast(df, column_types, variable_names, category_definition
                            medianprops=dict(color='red'))
                 ax.set_title(f"Boxplot of {col}")
                 ax.set_xticks([1]); ax.set_xticklabels([col])
-                plt.tight_layout(); plt.savefig(buf, format="png"); plt.close(fig)
-                buf.seek(0); doc.add_picture(buf, width=Inches(4.5)); buf.close()
+                plt.tight_layout(); plt.savefig(buf, format="png", dpi=72); plt.close(fig)
+                buf.seek(0); doc.add_picture(buf, width=Inches(4.0)); buf.close()
 
                 # Histogram
                 buf = BytesIO()
@@ -86,18 +88,18 @@ def generate_codebook_fast(df, column_types, variable_names, category_definition
                 ax.hist(data, bins=bins, color='lightblue', edgecolor='black')
                 ax.set_title(f"Histogram of {col}")
                 ax.set_xlabel(col); ax.set_ylabel("Frequency")
-                plt.tight_layout(); plt.savefig(buf, format="png"); plt.close(fig)
-                buf.seek(0); doc.add_picture(buf, width=Inches(4.5)); buf.close()
+                plt.tight_layout(); plt.savefig(buf, format="png", dpi=72); plt.close(fig)
+                buf.seek(0); doc.add_picture(buf, width=Inches(4.0)); buf.close()
 
-                # KDE
-                if len(data) > 1:
+                # KDE (選配)
+                if include_kde and len(data) > 1:
                     buf = BytesIO()
                     fig, ax = plt.subplots()
                     sns.kdeplot(data, ax=ax, color="blue", linewidth=1.5, fill=True, alpha=0.3)
                     ax.set_title(f"KDE Plot of {col}")
                     ax.set_xlabel(col); ax.set_ylabel("Density")
-                    plt.tight_layout(); plt.savefig(buf, format="png"); plt.close(fig)
-                    buf.seek(0); doc.add_picture(buf, width=Inches(4.5)); buf.close()
+                    plt.tight_layout(); plt.savefig(buf, format="png", dpi=72); plt.close(fig)
+                    buf.seek(0); doc.add_picture(buf, width=Inches(4.0)); buf.close()
 
         # 類別型
         elif column_types[col] == 2:
@@ -122,8 +124,8 @@ def generate_codebook_fast(df, column_types, variable_names, category_definition
                 value_counts.plot(kind="bar", color="cornflowerblue", ax=ax)
                 ax.set_title(f"Count Plot of {col}")
                 ax.set_xlabel(col); ax.set_ylabel("Frequency")
-                plt.tight_layout(); plt.savefig(buf, format="png"); plt.close(fig)
-                buf.seek(0); doc.add_picture(buf, width=Inches(4.5)); buf.close()
+                plt.tight_layout(); plt.savefig(buf, format="png", dpi=72); plt.close(fig)
+                buf.seek(0); doc.add_picture(buf, width=Inches(4.0)); buf.close()
 
     doc.save(output_path)
     return output_path
