@@ -330,17 +330,19 @@ with tab2:
                 except Exception as e:
                     st.warning(f"🔸 {col} one-hot 編碼失敗：{e}")
                 continue
-            # === case X: 單一數字 → 切兩類 ===
-            if transform.replace(".", "", 1).isdigit():  # 判斷是否為數字 (可含小數點)
+            # === case: 單一數字 → 切兩類 (<cut_point → 0, >=cut_point → 1) ===
+            if transform.replace(".", "", 1).isdigit():  # 判斷是不是數字 (含小數)
                 try:
                     cut_point = float(transform)
-                    bins = [-float("inf"), cut_point, float("inf")]
                     new_col = col + "_binned"
-                    df2[new_col] = pd.cut(df2[col], bins=bins, labels=False)
+
+                    # 分箱：左閉右開，確保 <cut_point = 0, >=cut_point = 1
+                    df2[new_col] = (df2[col] >= cut_point).astype(int)
+
                     variable_names[new_col] = col
                     df2.drop(columns=[col], inplace=True)
                 except Exception as e:
-                    st.warning(f"🔸 {col} 單一分界切分失敗：{e}")
+                    st.warning(f"🔸 {col} 單一數字分界失敗：{e}")
                 continue
 
             # === case 6: 未知指令 ===
