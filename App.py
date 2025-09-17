@@ -281,9 +281,9 @@ with tab2:
         category_definitions = {}
 
         for _, row in code2.iterrows():
-            col = str(row["variable"]).strip()
+            col = str(row["Variable"]).strip()
             t = str(row["Type"]).lower()
-            transform = str(row.get("Transfer", "")).strip()
+            transform = str(row.get("Transform", "")).strip()
 
             if col not in df2.columns:
                 continue
@@ -378,7 +378,7 @@ with tab2:
         st.download_button("📥 下載轉換後的 CSV", data=csv, file_name="transformed_data.csv", mime="text/csv")
         # ✅ 製作轉換後的 code_df
         code_df_transformed = pd.DataFrame({
-            "Column": list(variable_names.keys()),
+            "Variable": list(variable_names.keys()),
             "Type": [column_types[col] for col in variable_names.keys()]
         })
 
