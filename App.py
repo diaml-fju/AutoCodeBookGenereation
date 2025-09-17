@@ -75,27 +75,27 @@ with tab1:
 📥 完成設定後，點擊「🚀 產出 Codebook 報告」按鈕，即可下載 Word 格式報告。
     """)
 
-import streamlit as st
-import pandas as pd
+    import streamlit as st
+    import pandas as pd
 
-# 📁 第一步：上傳主資料
-st.header("📁 資料上傳")
-data_file = st.file_uploader("請上傳主資料 CSV", type=["csv"], key="data")
+    # 📁 第一步：上傳主資料
+    st.header("📁 資料上傳")
+    data_file = st.file_uploader("請上傳主資料 CSV", type=["csv"], key="data")
 
-df = None
-code_df = None
+    df = None
+    code_df = None
 
-if data_file:
-    df = read_uploaded_csv(data_file)
-    if df is not None:
-        df = df.dropna(how="all")
-        df.columns = df.columns.str.strip()
-        df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
-        st.success("✅ 主資料上傳成功！")
-        st.dataframe(df.head())
+    if data_file:
+        df = read_uploaded_csv(data_file)
+        if df is not None:
+            df = df.dropna(how="all")
+            df.columns = df.columns.str.strip()
+            df = df.loc[:, ~df.columns.str.contains("^Unnamed")]
+            st.success("✅ 主資料上傳成功！")
+            st.dataframe(df.head())
 
-    st.markdown("---")
-    st.info("📌 若需產出 Codebook，請繼續上傳 code.csv")
+        st.markdown("---")
+        st.info("📌 若需產出 Codebook，請繼續上傳 code.csv")
 
 
     # 📄 第二步：上傳 code.csv
