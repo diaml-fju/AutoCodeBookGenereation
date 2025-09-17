@@ -281,7 +281,7 @@ with tab2:
         category_definitions = {}
 
         for _, row in code2.iterrows():
-            col = row["Column"]
+            col = row["Variable"].strip()
             t = str(row["Type"]).lower()
             transform = str(row.get("Transfer", "")).strip()
 
