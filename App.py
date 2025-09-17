@@ -281,9 +281,9 @@ with tab2:
         category_definitions = {}
 
         for _, row in code2.iterrows():
-            col = str(row["Variable"]).strip()
-            t = str(row["Type"]).lower()
-            transform = str(row.get("Transform", "")).strip()
+            col = str(row["variable"]).strip()
+            t = str(row["type"]).lower()
+            transform = str(row.get("transform", "")).strip()
 
             if col not in df2.columns:
                 continue
