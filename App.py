@@ -285,7 +285,11 @@ with tab2:
             col = str(row["variable"]).strip()
             t = str(row["type"]).lower()
             transform = str(row.get("transform", "")).strip()
-
+            # 如果 transform 是 nan 或空白，就直接當作 none
+            if transform.lower() in ["", "nan", "none"]:
+                column_types[col] = int(t[-1]) if t.startswith("y") else int(t)
+                variable_names[col] = col
+                continue
             if col not in df2.columns:
                 continue
 
