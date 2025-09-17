@@ -274,7 +274,8 @@ with tab2:
     if df2 is not None and code2 is not None:
         st.success("✅ 資料與 code.csv 載入成功")
         st.success(f"✅主資料共 {df2.shape[0]} 筆")
-        code2 = code2[~code2["Type"].astype(str).str.lower().eq("0")]
+        code2 = code2[code2["Type"].astype(str).str.lower() != "0"]
+        code2.columns = code2.columns.str.strip().str.lower()
 
         variable_names = {}
         column_types = {}
