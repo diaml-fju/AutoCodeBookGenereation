@@ -283,7 +283,7 @@ with tab2:
         for _, row in code2.iterrows():
             col = row["Column"]
             t = str(row["Type"]).lower()
-            transform = str(row.get("Transform", "")).strip()
+            transform = str(row.get("Transfer", "")).strip()
 
             if col not in df2.columns:
                 continue
@@ -303,6 +303,31 @@ with tab2:
                     df2.drop(columns=[col], inplace=True)
                 except Exception as e:
                     st.warning(f"🔸 {col} 分箱失敗：{e}")
+            # === 分箱處理 ===
+            elif transform.lower().startswith("cut"):
+                try:
+                    if transform.lower().startswith("cut:"):  
+                        # case 1: cut:k → 分位數切 k 組
+                        k = int(transform.split(":")[1])
+                        df2[col + "_binned"] = pd.qcut(df2[col], q=k, labels=False, duplicates="drop")
+                        new_col = col + "_binned"
+                        column_types[new_col] = 2
+                        variable_names[new_col] = col
+                        df2.drop(columns=[col], inplace=True)
+
+                    else:
+                        # case 2: "24,30" → 以數字分箱
+                        cuts = [float(x.strip()) for x in transform.split(",") if x.strip() != ""]
+                        bins = [-float("inf")] + cuts + [float("inf")]
+                        new_col = col + "_binned"
+                        df2[new_col] = pd.cut(df2[col], bins=bins, labels=False)
+                        column_types[new_col] = 2
+                        variable_names[new_col] = col
+                        df2.drop(columns=[col], inplace=True)
+
+                except Exception as e:
+                    st.warning(f"🔸 {col} 分箱失敗：{e}")
+
             
             elif df2[col].dtype == 'object' or transform.lower() == 'onehot':
                 try:
