@@ -356,11 +356,43 @@ with tab2:
         # === 提供下載轉換後 CSV ===
         csv = df2.to_csv(index=False).encode('utf-8-sig')
         st.download_button("📥 下載轉換後的資料 (CSV)", data=csv, file_name="transformed_data.csv", mime="text/csv")
+        transformed_vars = []
+
+        for _, row in code2.iterrows():
+            col = str(row.get("variable", "")).strip()
+            transform = str(row.get("transform", "")).strip()
+
+            if not col or col not in df2.columns:
+                continue
+
+            new_col = col + "_binned"
+
+            # case 1: 單一數字
+            if transform.replace(".", "", 1).isdigit():
+                cut_point = float(transform)
+                df2[new_col] = (df2[col] >= cut_point).astype(int)
+                df2.drop(columns=[col], inplace=True)
+                transformed_vars.append({"Variable": new_col, "Type": 2})
+
+            # case 2: 多數字
+            elif "," in transform:
+                cuts = [float(x.strip()) for x in transform.split(",") if x.strip()]
+                def assign_bin(val):
+                    for i, c in enumerate(cuts):
+                        if val < c:
+                            return i
+                    return len(cuts)
+                df2[new_col] = df2[col].apply(assign_bin).astype(int)
+                df2.drop(columns=[col], inplace=True)
+                transformed_vars.append({"Variable": new_col, "Type": 2})
+
+        # 轉成 DataFrame
+        code_df_transformed = pd.DataFrame(transformed_vars)
 
         # === 產生轉換後的 code.xlsx（只包含 Variable）===
         import io
 
-        code_df_transformed = pd.DataFrame({"Variable": list(variable_names.keys())})
+        code_df_transformed = pd.DataFrame(transformed_vars)
 
         # 存成 Excel
         output = io.BytesIO()
