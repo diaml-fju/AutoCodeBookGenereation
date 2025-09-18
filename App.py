@@ -270,7 +270,7 @@ with tab2:
         code2.columns = code2.columns.str.strip().str.lower()
 
         variable_names = {}  # 映射新舊欄位名稱
-
+        transformed_vars = []  # 儲存轉換後的變數資訊
         for _, row in code2.iterrows():
             col = str(row.get("variable", "")).strip()
             transform = str(row.get("transform", "")).strip()
@@ -280,8 +280,13 @@ with tab2:
 
             # === case 1: 無 Transform → 保留原始欄位 ===
             if transform.lower() in ["", "nan", "none"]:
-                variable_names[col] = col
+                orig_type = str(row.get("type", "1")).strip()  # 從 code.csv 拿原始 Type
+                # 做個保險：如果原始 Type 空的，就預設 1（數值型）
+                if orig_type in ["", "0", "none", "nan"]:
+                    orig_type = "1"
+                transformed_vars.append({"Variable": col, "Type": int(orig_type)})
                 continue
+
 
             # === case 2: cut:[…] → 手動分箱 ===
             if transform.lower().startswith("cut:["):
@@ -357,34 +362,6 @@ with tab2:
         csv = df2.to_csv(index=False).encode('utf-8-sig')
         st.download_button("📥 下載轉換後的資料 (CSV)", data=csv, file_name="transformed_data.csv", mime="text/csv")
         transformed_vars = []
-
-        for _, row in code2.iterrows():
-            col = str(row.get("variable", "")).strip()
-            transform = str(row.get("transform", "")).strip()
-
-            if not col or col not in df2.columns:
-                continue
-
-            new_col = col + "_binned"
-
-            # case 1: 單一數字
-            if transform.replace(".", "", 1).isdigit():
-                cut_point = float(transform)
-                df2[new_col] = (df2[col] >= cut_point).astype(int)
-                df2.drop(columns=[col], inplace=True)
-                transformed_vars.append({"Variable": new_col, "Type": 2})
-
-            # case 2: 多數字
-            elif "," in transform:
-                cuts = [float(x.strip()) for x in transform.split(",") if x.strip()]
-                def assign_bin(val):
-                    for i, c in enumerate(cuts):
-                        if val < c:
-                            return i
-                    return len(cuts)
-                df2[new_col] = df2[col].apply(assign_bin).astype(int)
-                df2.drop(columns=[col], inplace=True)
-                transformed_vars.append({"Variable": new_col, "Type": 2})
 
         # 轉成 DataFrame
         code_df_transformed = pd.DataFrame(transformed_vars)
