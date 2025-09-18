@@ -357,10 +357,20 @@ with tab2:
         csv = df2.to_csv(index=False).encode('utf-8-sig')
         st.download_button("📥 下載轉換後的資料 (CSV)", data=csv, file_name="transformed_data.csv", mime="text/csv")
 
-        # === 產生轉換後的 code.csv（只包含 Variable）===
+        # === 產生轉換後的 code.xlsx（只包含 Variable）===
+        import io
+
         code_df_transformed = pd.DataFrame({"Variable": list(variable_names.keys())})
-        csv_code = code_df_transformed.to_csv(index=False, encoding='utf-8-sig')
-        st.download_button("📥 下載轉換後的 code.csv", data=csv_code, file_name="code_transformed.csv", mime="text/csv")
+
+        # 存成 Excel
+        output = io.BytesIO()
+        code_df_transformed.to_excel(output, index=False, engine="openpyxl")
+        st.download_button(
+            "📥 下載轉換後的 code.xlsx",
+            data=output.getvalue(),
+            file_name="code_transformed.xlsx",
+            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+)
 
 
 
