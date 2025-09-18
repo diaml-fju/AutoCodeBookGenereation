@@ -364,7 +364,7 @@ with tab2:
 
         # 存成 Excel
         output = io.BytesIO()
-        code_df_transformed.to_excel(output, index=False, engine="openpyxl")
+        code_df_transformed.to_excel(output, index=False)
         st.download_button(
             "📥 下載轉換後的 code.xlsx",
             data=output.getvalue(),
