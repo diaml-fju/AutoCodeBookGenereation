@@ -291,7 +291,8 @@ with tab2:
                 # 如果沒辦法辨識，就預設 1
                 t_val = type_map.get(orig_type, 1)
 
-                transformed_vars.append({"Variable": col, "Type": t_val,"Description": row.get("description")})
+                transformed_vars.append({"Variable": col, "Type": t_val, "Description": row.get("description"), "Transform": ""})
+
                 continue
 
 
@@ -305,7 +306,8 @@ with tab2:
                     df2.drop(columns=[col], inplace=True)
 
                     # ⬅️ 把轉換後的新欄位記錄下來
-                    transformed_vars.append({"Variable": new_col, "Type": 'Categorical'})
+                    transformed_vars.append({"Variable": new_col, "Type": "Categorical", "Description": row.get("description"), "Transform": transform})
+
 
                 except Exception as e:
                     st.warning(f"🔸 {col} 分箱失敗：{e}")
@@ -319,6 +321,8 @@ with tab2:
                     df2[new_col] = pd.qcut(df2[col], q=k, labels=False, duplicates="drop")
                     variable_names[new_col] = col
                     df2.drop(columns=[col], inplace=True)
+                    transformed_vars.append({"Variable": new_col, "Type": "Categorical", "Description": row.get("description"), "Transform": transform})
+
                 except Exception as e:
                     st.warning(f"🔸 {col} 分位數切分失敗：{e}")
                 continue
@@ -332,6 +336,8 @@ with tab2:
                     df2[new_col] = pd.cut(df2[col], bins=bins, labels=False)
                     variable_names[new_col] = col
                     df2.drop(columns=[col], inplace=True)
+                    transformed_vars.append({"Variable": new_col, "Type": "Categorical", "Description": row.get("description"), "Transform": transform})
+
                 except Exception as e:
                     st.warning(f"🔸 {col} 自訂切分失敗：{e}")
                 continue
@@ -343,6 +349,9 @@ with tab2:
                     for new_col in onehot.columns:
                         variable_names[new_col] = col
                     df2 = pd.concat([df2.drop(columns=[col]), onehot], axis=1)
+                    for new_col in onehot.columns:
+                        transformed_vars.append({"Variable": new_col, "Type": "Categorical", "Description": row.get("description"), "Transform": "onehot"})
+
                 except Exception as e:
                     st.warning(f"🔸 {col} one-hot 編碼失敗：{e}")
                 continue
@@ -357,6 +366,8 @@ with tab2:
 
                     variable_names[new_col] = col
                     df2.drop(columns=[col], inplace=True)
+                    transformed_vars.append({"Variable": new_col, "Type": "Categorical", "Description": row.get("description"), "Transform": transform})
+
                 except Exception as e:
                     st.warning(f"🔸 {col} 單一數字分界失敗：{e}")
                 continue
