@@ -284,14 +284,14 @@ with tab2:
 
                 # 做 mapping，避免直接轉 int 出錯
                 type_map = {
-                    "1": 1, "numerical": 1, "連續": 1, "數值": 1,
-                    "2": 2, "categorical": 2, "類別": 2
+                    "1": 'Numerical', "numerical": 'Numerical', "連續": 1, "數值": 'Numerical',
+                    "2": 'Categorical', "categorical": 'Categorical', "類別": 'Categorical'
                 }
 
                 # 如果沒辦法辨識，就預設 1
                 t_val = type_map.get(orig_type, 1)
 
-                transformed_vars.append({"Variable": col, "Type": t_val,"Description": row.get("description"), "Transform": transform})
+                transformed_vars.append({"Variable": col, "Type": t_val,"Description": row.get("description"), "Transform": row.get("transform")})
                 continue
 
 
