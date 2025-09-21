@@ -303,6 +303,10 @@ with tab2:
                     df2[new_col] = pd.cut(df2[col], bins=bins, include_lowest=True, labels=False)
                     variable_names[new_col] = col
                     df2.drop(columns=[col], inplace=True)
+
+                    # ⬅️ 把轉換後的新欄位記錄下來
+                    transformed_vars.append({"Variable": new_col, "Type": 'Categorical'})
+
                 except Exception as e:
                     st.warning(f"🔸 {col} 分箱失敗：{e}")
                 continue
