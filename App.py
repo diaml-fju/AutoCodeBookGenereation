@@ -291,7 +291,7 @@ with tab2:
                 # 如果沒辦法辨識，就預設 1
                 t_val = type_map.get(orig_type, 1)
 
-                transformed_vars.append({"Variable": col, "Type": t_val})
+                transformed_vars.append({"Variable": col, "Type": t_val,"Description": row.get("description", "Transform": transform)})
                 continue
 
 
@@ -368,7 +368,7 @@ with tab2:
         # === 提供下載轉換後 CSV ===
         csv = df2.to_csv(index=False).encode('utf-8-sig')
         st.download_button("📥 下載轉換後的資料 (CSV)", data=csv, file_name="transformed_data.csv", mime="text/csv")
-        transformed_vars = []
+        #transformed_vars = []
 
         # 轉成 DataFrame
         code_df_transformed = pd.DataFrame(transformed_vars)
