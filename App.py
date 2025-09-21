@@ -395,12 +395,13 @@ with tab2:
 
         # 存成 Excel
         output = io.BytesIO()
-        code_df_transformed.to_excel(output, index=False)
+        code_df_transformed.to_csv(output, index=False, encoding="utf-8-sig")
         st.download_button(
-            "📥 下載轉換後的 code.xlsx",
+            "📥 下載轉換後的 code.csv",
             data=output.getvalue(),
-            file_name="code_transformed.xlsx",
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            file_name="code_transformed.csv",
+            #mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            mime="text/csv"
 )
 
 
