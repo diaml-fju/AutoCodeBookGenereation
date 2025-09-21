@@ -280,11 +280,18 @@ with tab2:
 
             # === case 1: 無 Transform → 保留原始欄位 ===
             if transform.lower() in ["", "nan", "none"]:
-                orig_type = str(row.get("type", "1")).strip()  # 從 code.csv 拿原始 Type
-                # 做個保險：如果原始 Type 空的，就預設 1（數值型）
-                if orig_type in ["", "0", "none", "nan"]:
-                    orig_type = "1"
-                transformed_vars.append({"Variable": col, "Type": int(orig_type)})
+                orig_type = str(row.get("type", "1")).strip().lower()
+
+                # 做 mapping，避免直接轉 int 出錯
+                type_map = {
+                    "1": 1, "numerical": 1, "連續": 1, "數值": 1,
+                    "2": 2, "categorical": 2, "類別": 2
+                }
+
+                # 如果沒辦法辨識，就預設 1
+                t_val = type_map.get(orig_type, 1)
+
+                transformed_vars.append({"Variable": col, "Type": t_val})
                 continue
 
 
