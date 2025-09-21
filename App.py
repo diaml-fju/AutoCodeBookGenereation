@@ -291,7 +291,7 @@ with tab2:
                 # 如果沒辦法辨識，就預設 1
                 t_val = type_map.get(orig_type, 1)
 
-                transformed_vars.append({"Variable": col, "Type": t_val,"Description": row.get("description"), "Transform": row.get("transform")})
+                transformed_vars.append({"Variable": col, "Type": t_val,"Description": row.get("description")})
                 continue
 
 
