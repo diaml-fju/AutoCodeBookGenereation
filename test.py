@@ -283,8 +283,21 @@ def generate_codebook(df, column_types, variable_names, category_definitions, co
                         # ➤ 畫 KDE
             if len(data) > 1:
                 import seaborn as sns
+
+                dmin = np.nanmin(data)
+                dmax = np.nanmax(data)
+
+
                 fig4, ax4 = plt.subplots()
-                sns.kdeplot(data, ax=ax4, color="blue", linewidth=1.5, fill=True, alpha=0.3)
+                sns.kdeplot(data,
+                             ax=ax4, 
+                             color="blue", 
+                             linewidth=1.5, 
+                             fill=True, 
+                             alpha=0.3,
+                             cut = 0,
+                             clip=(dmin, dmax)
+                             )
 
                 ax4.set_title(f"KDE Plot of {col}", fontproperties=ch_font)
                 ax4.set_xlabel(col, fontproperties=ch_font)
